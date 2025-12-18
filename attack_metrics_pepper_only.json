@@ -1,0 +1,62 @@
+{
+  "report_metadata": {
+    "generated_at": "2025-12-12T13:51:19.403236+00:00",
+    "test_name": "Password Spray - PEPPER ONLY Defense",
+    "defense_configuration": {
+      "pepper": "ENABLED (HMAC-SHA256 with secret key)",
+      "rate_limiting": "DISABLED",
+      "captcha": "DISABLED",
+      "password_hashing": "argon2id (time=1, memory=64MB, parallelism=1)"
+    }
+  },
+  "test_results": {
+    "attack_type": "password_spray_pepper_only",
+    "config_name": "pepper_only_no_other_defense",
+    "defense_config": "pepper=ENABLED, rate_limit=DISABLED, captcha=DISABLED, argon2id",
+    "group_seed": "251891",
+    "total_attempts": 930,
+    "successful_attempts": 20,
+    "failed_attempts": 910,
+    "blocked_attempts": 0,
+    "captcha_blocks": 0,
+    "rate_limit_blocks": 0,
+    "compromised_accounts": [
+      "mid06:MyComputer",
+      "mid05:Yossi555",
+      "mid04:80Israel",
+      "weak06:qwert",
+      "weak09:user",
+      "mid01:Admin001",
+      "weak07:251891",
+      "mid09:Freedom10",
+      "mid08:ILoveBamba",
+      "mid07:Summer25",
+      "mid03:ApplePai",
+      "weak03:abcdef",
+      "mid10:0WorkHard1",
+      "weak05:654321",
+      "weak10:null",
+      "weak02:111111",
+      "mid02:Maman16x",
+      "weak01:123456",
+      "weak04:admin",
+      "weak08:yossi"
+    ],
+    "latencies_ms": "[930 samples]",
+    "total_time_seconds": 30.85,
+    "attempts_per_second": 30.14,
+    "time_to_first_compromise_seconds": 0.54,
+    "success_rate_percent": 2.1505,
+    "block_rate_percent": 0.0,
+    "avg_latency_ms": 33.17,
+    "min_latency_ms": 29.81,
+    "max_latency_ms": 54.66,
+    "p95_latency_ms": 36.58
+  },
+  "analysis": {
+    "finding": "Pepper does NOT protect against online brute-force attacks",
+    "reason": "Attacker sends plaintext password; server applies pepper internally before hash verification",
+    "pepper_protects_against": "Offline attacks only (when database is leaked, attacker needs pepper to crack hashes)",
+    "recommendation": "Rate limiting and CAPTCHA are essential for online attack protection"
+  }
+}

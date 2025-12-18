@@ -1,0 +1,690 @@
+{
+  "report_metadata": {
+    "title": "Comprehensive Defense Mechanism Comparison Report",
+    "generated_at": "2025-12-12T14:37:29.304011+00:00",
+    "group_seed": "251891",
+    "test_parameters": {
+      "attack_type": "password_spray",
+      "max_attempts_per_config": 300,
+      "password_list_size": 20,
+      "target_users": 20
+    }
+  },
+  "individual_results": [
+    {
+      "config_name": "NO_DEFENSE",
+      "defense_config": {
+        "rate_limiting": false,
+        "captcha": false,
+        "pepper": true
+      },
+      "attempts": {
+        "total": 300,
+        "successful": 14,
+        "failed": 286,
+        "blocked_rate_limit": 0,
+        "blocked_captcha": 0,
+        "totp_challenges": 0
+      },
+      "rates": {
+        "success_rate_percent": 4.6667,
+        "block_rate_percent": 0.0,
+        "attempts_per_second": 29.12
+      },
+      "timing_statistics_ms": {
+        "mean": 34.34,
+        "median": 34.08,
+        "stddev": 2.17,
+        "min": 30.74,
+        "max": 54.8
+      },
+      "percentiles_ms": {
+        "p10": 32.27,
+        "p25": 32.92,
+        "p50": 34.08,
+        "p75": 35.36,
+        "p90": 36.18,
+        "p95": 37.48,
+        "p99": 43.32
+      },
+      "time_to_events_sec": {
+        "first_success": 0.05480908299796283,
+        "first_block": null
+      },
+      "total_attack_time_sec": 10.3,
+      "compromised_count": 14,
+      "compromised_accounts": [
+        "weak01:123456",
+        "weak02:111111",
+        "weak03:abcdef",
+        "weak04:admin",
+        "weak05:654321",
+        "weak06:qwert",
+        "weak07:251891",
+        "weak08:yossi",
+        "weak09:user",
+        "weak10:null"
+      ]
+    },
+    {
+      "config_name": "RATE_LIMIT_ONLY",
+      "defense_config": {
+        "rate_limiting": true,
+        "captcha": false,
+        "pepper": true
+      },
+      "attempts": {
+        "total": 300,
+        "successful": 1,
+        "failed": 4,
+        "blocked_rate_limit": 295,
+        "blocked_captcha": 0,
+        "totp_challenges": 0
+      },
+      "rates": {
+        "success_rate_percent": 0.3333,
+        "block_rate_percent": 98.3333,
+        "attempts_per_second": 718.19
+      },
+      "timing_statistics_ms": {
+        "mean": 1.39,
+        "median": 0.65,
+        "stddev": 5.44,
+        "min": 0.55,
+        "max": 60.25
+      },
+      "percentiles_ms": {
+        "p10": 0.59,
+        "p25": 0.61,
+        "p50": 0.65,
+        "p75": 0.74,
+        "p90": 0.96,
+        "p95": 1.11,
+        "p99": 38.56
+      },
+      "time_to_events_sec": {
+        "first_success": 0.06026941700838506,
+        "first_block": 0.2119031670736149
+      },
+      "total_attack_time_sec": 0.42,
+      "compromised_count": 1,
+      "compromised_accounts": [
+        "weak01:123456"
+      ]
+    },
+    {
+      "config_name": "CAPTCHA_ONLY",
+      "defense_config": {
+        "rate_limiting": false,
+        "captcha": true,
+        "pepper": true
+      },
+      "attempts": {
+        "total": 300,
+        "successful": 1,
+        "failed": 5,
+        "blocked_rate_limit": 0,
+        "blocked_captcha": 294,
+        "totp_challenges": 0
+      },
+      "rates": {
+        "success_rate_percent": 0.3333,
+        "block_rate_percent": 98.0,
+        "attempts_per_second": 718.35
+      },
+      "timing_statistics_ms": {
+        "mean": 1.39,
+        "median": 0.58,
+        "stddev": 5.79,
+        "min": 0.39,
+        "max": 63.68
+      },
+      "percentiles_ms": {
+        "p10": 0.45,
+        "p25": 0.54,
+        "p50": 0.58,
+        "p75": 0.64,
+        "p90": 0.77,
+        "p95": 0.9,
+        "p99": 36.94
+      },
+      "time_to_events_sec": {
+        "first_success": 0.06369379197712988,
+        "first_block": 0.24337408400606364
+      },
+      "total_attack_time_sec": 0.42,
+      "compromised_count": 1,
+      "compromised_accounts": [
+        "weak01:123456"
+      ]
+    },
+    {
+      "config_name": "PEPPER_ONLY",
+      "defense_config": {
+        "rate_limiting": false,
+        "captcha": false,
+        "pepper": true
+      },
+      "attempts": {
+        "total": 300,
+        "successful": 14,
+        "failed": 286,
+        "blocked_rate_limit": 0,
+        "blocked_captcha": 0,
+        "totp_challenges": 0
+      },
+      "rates": {
+        "success_rate_percent": 4.6667,
+        "block_rate_percent": 0.0,
+        "attempts_per_second": 30.13
+      },
+      "timing_statistics_ms": {
+        "mean": 33.19,
+        "median": 33.04,
+        "stddev": 2.81,
+        "min": 29.75,
+        "max": 51.96
+      },
+      "percentiles_ms": {
+        "p10": 30.38,
+        "p25": 30.79,
+        "p50": 33.04,
+        "p75": 34.89,
+        "p90": 36.05,
+        "p95": 37.22,
+        "p99": 44.71
+      },
+      "time_to_events_sec": {
+        "first_success": 0.048636291990987957,
+        "first_block": null
+      },
+      "total_attack_time_sec": 9.96,
+      "compromised_count": 14,
+      "compromised_accounts": [
+        "weak01:123456",
+        "weak02:111111",
+        "weak03:abcdef",
+        "weak04:admin",
+        "weak05:654321",
+        "weak06:qwert",
+        "weak07:251891",
+        "weak08:yossi",
+        "weak09:user",
+        "weak10:null"
+      ]
+    },
+    {
+      "config_name": "RATE_LIMIT_+_CAPTCHA",
+      "defense_config": {
+        "rate_limiting": true,
+        "captcha": true,
+        "pepper": false
+      },
+      "attempts": {
+        "total": 300,
+        "successful": 1,
+        "failed": 4,
+        "blocked_rate_limit": 295,
+        "blocked_captcha": 0,
+        "totp_challenges": 0
+      },
+      "rates": {
+        "success_rate_percent": 0.3333,
+        "block_rate_percent": 98.3333,
+        "attempts_per_second": 775.56
+      },
+      "timing_statistics_ms": {
+        "mean": 1.29,
+        "median": 0.63,
+        "stddev": 4.67,
+        "min": 0.55,
+        "max": 41.33
+      },
+      "percentiles_ms": {
+        "p10": 0.58,
+        "p25": 0.6,
+        "p50": 0.63,
+        "p75": 0.72,
+        "p90": 0.9,
+        "p95": 1.04,
+        "p99": 35.99
+      },
+      "time_to_events_sec": {
+        "first_success": 0.04133937496226281,
+        "first_block": 0.18671183299738914
+      },
+      "total_attack_time_sec": 0.39,
+      "compromised_count": 1,
+      "compromised_accounts": [
+        "weak01:123456"
+      ]
+    },
+    {
+      "config_name": "RATE_LIMIT_+_PEPPER",
+      "defense_config": {
+        "rate_limiting": true,
+        "captcha": false,
+        "pepper": true
+      },
+      "attempts": {
+        "total": 300,
+        "successful": 1,
+        "failed": 4,
+        "blocked_rate_limit": 295,
+        "blocked_captcha": 0,
+        "totp_challenges": 0
+      },
+      "rates": {
+        "success_rate_percent": 0.3333,
+        "block_rate_percent": 98.3333,
+        "attempts_per_second": 759.72
+      },
+      "timing_statistics_ms": {
+        "mean": 1.32,
+        "median": 0.6,
+        "stddev": 5.45,
+        "min": 0.54,
+        "max": 59.98
+      },
+      "percentiles_ms": {
+        "p10": 0.57,
+        "p25": 0.58,
+        "p50": 0.6,
+        "p75": 0.64,
+        "p90": 0.72,
+        "p95": 0.81,
+        "p99": 36.79
+      },
+      "time_to_events_sec": {
+        "first_success": 0.06000183301512152,
+        "first_block": 0.21157337503973395
+      },
+      "total_attack_time_sec": 0.39,
+      "compromised_count": 1,
+      "compromised_accounts": [
+        "weak01:123456"
+      ]
+    },
+    {
+      "config_name": "CAPTCHA_+_PEPPER",
+      "defense_config": {
+        "rate_limiting": false,
+        "captcha": true,
+        "pepper": true
+      },
+      "attempts": {
+        "total": 300,
+        "successful": 1,
+        "failed": 5,
+        "blocked_rate_limit": 0,
+        "blocked_captcha": 294,
+        "totp_challenges": 0
+      },
+      "rates": {
+        "success_rate_percent": 0.3333,
+        "block_rate_percent": 98.0,
+        "attempts_per_second": 746.85
+      },
+      "timing_statistics_ms": {
+        "mean": 1.34,
+        "median": 0.56,
+        "stddev": 5.35,
+        "min": 0.48,
+        "max": 52.01
+      },
+      "percentiles_ms": {
+        "p10": 0.52,
+        "p25": 0.54,
+        "p50": 0.56,
+        "p75": 0.6,
+        "p90": 0.68,
+        "p95": 0.89,
+        "p99": 35.68
+      },
+      "time_to_events_sec": {
+        "first_success": 0.052028957987204194,
+        "first_block": 0.22967833292204887
+      },
+      "total_attack_time_sec": 0.4,
+      "compromised_count": 1,
+      "compromised_accounts": [
+        "weak01:123456"
+      ]
+    },
+    {
+      "config_name": "ALL_DEFENSES",
+      "defense_config": {
+        "rate_limiting": true,
+        "captcha": true,
+        "pepper": true
+      },
+      "attempts": {
+        "total": 300,
+        "successful": 1,
+        "failed": 4,
+        "blocked_rate_limit": 295,
+        "blocked_captcha": 0,
+        "totp_challenges": 0
+      },
+      "rates": {
+        "success_rate_percent": 0.3333,
+        "block_rate_percent": 98.3333,
+        "attempts_per_second": 698.62
+      },
+      "timing_statistics_ms": {
+        "mean": 1.43,
+        "median": 0.77,
+        "stddev": 4.72,
+        "min": 0.58,
+        "max": 48.08
+      },
+      "percentiles_ms": {
+        "p10": 0.64,
+        "p25": 0.69,
+        "p50": 0.77,
+        "p75": 0.93,
+        "p90": 1.1,
+        "p95": 1.27,
+        "p99": 34.87
+      },
+      "time_to_events_sec": {
+        "first_success": 0.048094917088747025,
+        "first_block": 0.18741033307742327
+      },
+      "total_attack_time_sec": 0.43,
+      "compromised_count": 1,
+      "compromised_accounts": [
+        "weak01:123456"
+      ]
+    }
+  ],
+  "comparison_tables": {
+    "success_and_block_rates": {
+      "headers": [
+        "Configuration",
+        "Success%",
+        "Block%",
+        "Compromised"
+      ],
+      "rows": [
+        [
+          "NO_DEFENSE",
+          "4.67%",
+          "0.00%",
+          14
+        ],
+        [
+          "RATE_LIMIT_ONLY",
+          "0.33%",
+          "98.33%",
+          1
+        ],
+        [
+          "CAPTCHA_ONLY",
+          "0.33%",
+          "98.00%",
+          1
+        ],
+        [
+          "PEPPER_ONLY",
+          "4.67%",
+          "0.00%",
+          14
+        ],
+        [
+          "RATE_LIMIT_+_CAPTCHA",
+          "0.33%",
+          "98.33%",
+          1
+        ],
+        [
+          "RATE_LIMIT_+_PEPPER",
+          "0.33%",
+          "98.33%",
+          1
+        ],
+        [
+          "CAPTCHA_+_PEPPER",
+          "0.33%",
+          "98.00%",
+          1
+        ],
+        [
+          "ALL_DEFENSES",
+          "0.33%",
+          "98.33%",
+          1
+        ]
+      ]
+    },
+    "timing_comparison": {
+      "headers": [
+        "Configuration",
+        "Mean(ms)",
+        "Median(ms)",
+        "P90(ms)",
+        "P95(ms)",
+        "StdDev"
+      ],
+      "rows": [
+        [
+          "NO_DEFENSE",
+          34.34,
+          34.08,
+          36.18,
+          37.48,
+          2.17
+        ],
+        [
+          "RATE_LIMIT_ONLY",
+          1.39,
+          0.65,
+          0.96,
+          1.11,
+          5.44
+        ],
+        [
+          "CAPTCHA_ONLY",
+          1.39,
+          0.58,
+          0.77,
+          0.9,
+          5.79
+        ],
+        [
+          "PEPPER_ONLY",
+          33.19,
+          33.04,
+          36.05,
+          37.22,
+          2.81
+        ],
+        [
+          "RATE_LIMIT_+_CAPTCHA",
+          1.29,
+          0.63,
+          0.9,
+          1.04,
+          4.67
+        ],
+        [
+          "RATE_LIMIT_+_PEPPER",
+          1.32,
+          0.6,
+          0.72,
+          0.81,
+          5.45
+        ],
+        [
+          "CAPTCHA_+_PEPPER",
+          1.34,
+          0.56,
+          0.68,
+          0.89,
+          5.35
+        ],
+        [
+          "ALL_DEFENSES",
+          1.43,
+          0.77,
+          1.1,
+          1.27,
+          4.72
+        ]
+      ]
+    },
+    "performance_comparison": {
+      "headers": [
+        "Configuration",
+        "Total Time(s)",
+        "Req/s",
+        "Time to Crack(s)",
+        "Time to Block(s)"
+      ],
+      "rows": [
+        [
+          "NO_DEFENSE",
+          10.3,
+          29.12,
+          0.05480908299796283,
+          null
+        ],
+        [
+          "RATE_LIMIT_ONLY",
+          0.42,
+          718.19,
+          0.06026941700838506,
+          0.2119031670736149
+        ],
+        [
+          "CAPTCHA_ONLY",
+          0.42,
+          718.35,
+          0.06369379197712988,
+          0.24337408400606364
+        ],
+        [
+          "PEPPER_ONLY",
+          9.96,
+          30.13,
+          0.048636291990987957,
+          null
+        ],
+        [
+          "RATE_LIMIT_+_CAPTCHA",
+          0.39,
+          775.56,
+          0.04133937496226281,
+          0.18671183299738914
+        ],
+        [
+          "RATE_LIMIT_+_PEPPER",
+          0.39,
+          759.72,
+          0.06000183301512152,
+          0.21157337503973395
+        ],
+        [
+          "CAPTCHA_+_PEPPER",
+          0.4,
+          746.85,
+          0.052028957987204194,
+          0.22967833292204887
+        ],
+        [
+          "ALL_DEFENSES",
+          0.43,
+          698.62,
+          0.048094917088747025,
+          0.18741033307742327
+        ]
+      ]
+    }
+  },
+  "distribution_analysis": [
+    {
+      "config": "NO_DEFENSE",
+      "distribution_shape": "tight_cluster",
+      "percentile_spread": {
+        "p10_to_p90_range": 3.9099999999999966,
+        "p25_to_p75_range": 2.4399999999999977,
+        "coefficient_of_variation": 6.319161327897495
+      }
+    },
+    {
+      "config": "RATE_LIMIT_ONLY",
+      "distribution_shape": "uniform",
+      "percentile_spread": {
+        "p10_to_p90_range": 0.37,
+        "p25_to_p75_range": 0.13,
+        "coefficient_of_variation": 391.3669064748202
+      }
+    },
+    {
+      "config": "CAPTCHA_ONLY",
+      "distribution_shape": "uniform",
+      "percentile_spread": {
+        "p10_to_p90_range": 0.32,
+        "p25_to_p75_range": 0.09999999999999998,
+        "coefficient_of_variation": 416.5467625899281
+      }
+    },
+    {
+      "config": "PEPPER_ONLY",
+      "distribution_shape": "tight_cluster",
+      "percentile_spread": {
+        "p10_to_p90_range": 5.669999999999998,
+        "p25_to_p75_range": 4.100000000000001,
+        "coefficient_of_variation": 8.466405543838507
+      }
+    },
+    {
+      "config": "RATE_LIMIT_+_CAPTCHA",
+      "distribution_shape": "uniform",
+      "percentile_spread": {
+        "p10_to_p90_range": 0.32000000000000006,
+        "p25_to_p75_range": 0.12,
+        "coefficient_of_variation": 362.015503875969
+      }
+    },
+    {
+      "config": "RATE_LIMIT_+_PEPPER",
+      "distribution_shape": "uniform",
+      "percentile_spread": {
+        "p10_to_p90_range": 0.15000000000000002,
+        "p25_to_p75_range": 0.06000000000000005,
+        "coefficient_of_variation": 412.8787878787879
+      }
+    },
+    {
+      "config": "CAPTCHA_+_PEPPER",
+      "distribution_shape": "uniform",
+      "percentile_spread": {
+        "p10_to_p90_range": 0.16000000000000003,
+        "p25_to_p75_range": 0.05999999999999994,
+        "coefficient_of_variation": 399.2537313432835
+      }
+    },
+    {
+      "config": "ALL_DEFENSES",
+      "distribution_shape": "uniform",
+      "percentile_spread": {
+        "p10_to_p90_range": 0.4600000000000001,
+        "p25_to_p75_range": 0.2400000000000001,
+        "coefficient_of_variation": 330.0699300699301
+      }
+    }
+  ],
+  "summary": {
+    "most_effective_defense": "RATE_LIMIT_ONLY",
+    "fastest_to_block": "RATE_LIMIT_+_CAPTCHA (0.187s)",
+    "lowest_success_rate": "RATE_LIMIT_ONLY (0.33%)",
+    "recommendations": [
+      "1. Rate limiting is the most effective single defense mechanism",
+      "2. CAPTCHA provides good secondary protection after initial failures",
+      "3. Pepper does NOT protect against online attacks - only useful for offline cracking",
+      "4. Combining rate limiting + CAPTCHA provides defense-in-depth",
+      "5. Argon2id hashing adds ~30ms per attempt, slowing automated attacks"
+    ]
+  }
+}

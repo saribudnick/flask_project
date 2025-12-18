@@ -1,0 +1,38 @@
+{
+  "report_metadata": {
+    "generated_at": "2025-12-12T13:49:17.629618+00:00",
+    "test_name": "Extended Password Spray - Pepper Test",
+    "defense_configuration": {
+      "pepper": "ENABLED (HMAC-SHA256)",
+      "rate_limiting": "DISABLED",
+      "captcha": "5 failed attempts (but no rate limit)",
+      "password_hashing": "argon2id (time=1, memory=64MB, parallelism=1)"
+    }
+  },
+  "test_results": {
+    "attack_type": "password_spray_extended",
+    "config_name": "pepper_no_ratelimit_50k",
+    "defense_config": "pepper=enabled, rate_limit=DISABLED, argon2id",
+    "group_seed": "251891",
+    "total_attempts": 1380,
+    "successful_attempts": 0,
+    "failed_attempts": 1380,
+    "blocked_attempts": 0,
+    "compromised_accounts": [],
+    "latencies_ms": "[1380 samples]",
+    "total_time_seconds": 0.85,
+    "attempts_per_second": 1628.22,
+    "time_to_first_compromise_seconds": null,
+    "success_rate_percent": 0.0,
+    "block_rate_percent": 0.0,
+    "avg_latency_ms": 0.61,
+    "min_latency_ms": 0.47,
+    "max_latency_ms": 12.51,
+    "p95_latency_ms": 0.78
+  },
+  "analysis": {
+    "finding": "Pepper does NOT protect against online attacks",
+    "reason": "Attacker sends plaintext password, server applies pepper internally",
+    "pepper_protects_against": "Offline attacks if database is leaked (attacker doesn't know pepper)"
+  }
+}

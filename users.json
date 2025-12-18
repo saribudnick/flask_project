@@ -1,0 +1,209 @@
+{
+  "metadata": {
+    "description": "Test user accounts for automated security testing",
+    "created": "2025-12-12",
+    "group_seed": "251891",
+    "note": "secret_totp provided for TOTP automation testing. group_seed is XOR of group member IDs."
+  },
+  "users": [
+    {
+      "username": "weak01",
+      "password": "123456",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak02",
+      "password": "111111",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak03",
+      "password": "abcdef",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak04",
+      "password": "admin",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak05",
+      "password": "654321",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak06",
+      "password": "qwert",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak07",
+      "password": "251891",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak08",
+      "password": "yossi",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak09",
+      "password": "user",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "weak10",
+      "password": "null",
+      "category": "weak",
+      "secret_totp": null
+    },
+    {
+      "username": "mid01",
+      "password": "Admin001",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid02",
+      "password": "Maman16x",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid03",
+      "password": "ApplePai",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid04",
+      "password": "80Israel",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid05",
+      "password": "Yossi555",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid06",
+      "password": "MyComputer",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid07",
+      "password": "Summer25",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid08",
+      "password": "ILoveBamba",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid09",
+      "password": "Freedom10",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "mid10",
+      "password": "0WorkHard1",
+      "category": "mid",
+      "secret_totp": null
+    },
+    {
+      "username": "strong01",
+      "password": "%StrongPass_14%",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong02",
+      "password": "^Secure-System1",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong03",
+      "password": "(20940Course)",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong04",
+      "password": "M@nNual-Test&42",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong05",
+      "password": "~Final_Prjct_20940~",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong06",
+      "password": "!Encrypt_Data_999!",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong07",
+      "password": "?A1b2C3d4E5f6G7h$",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong08",
+      "password": "(Hack_The_System_77)",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong09",
+      "password": "*Key!Ch@in-Protect*",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "strong10",
+      "password": "~Virtual_Mach!ne-0",
+      "category": "strong",
+      "secret_totp": null
+    },
+    {
+      "username": "totp_user01",
+      "password": "TotpTest123!",
+      "category": "totp_enabled",
+      "secret_totp": "JBSWY3DPEHPK3PXP"
+    },
+    {
+      "username": "totp_user02",
+      "password": "TotpSecure456@",
+      "category": "totp_enabled",
+      "secret_totp": "GEZDGNBVGY3TQOJQ"
+    },
+    {
+      "username": "totp_user03",
+      "password": "Totp2FA789#",
+      "category": "totp_enabled",
+      "secret_totp": "MFRGGZDFMY4TQNZZ"
+    }
+  ]
+}
+

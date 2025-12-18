@@ -2,5 +2,7 @@ Flask
 Flask-SQLAlchemy
 Flask-Migrate
 Flask-JWT-Extended
+Flask-Limiter
 bcrypt
 pyotp
+argon2-cffi

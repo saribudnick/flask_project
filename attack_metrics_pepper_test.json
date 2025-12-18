@@ -1,0 +1,58 @@
+{
+  "report_metadata": {
+    "generated_at": "2025-12-12T13:46:50.813591+00:00",
+    "defense_configuration": {
+      "pepper": "ENABLED (HMAC-SHA256)",
+      "rate_limiting": "DISABLED",
+      "captcha": "5 failed attempts",
+      "password_hashing": "argon2id (time=1, memory=64MB, parallelism=1)"
+    }
+  },
+  "test_results": [
+    {
+      "attack_type": "brute_force",
+      "config_name": "pepper_no_ratelimit",
+      "defense_config": "pepper=enabled, rate_limit=DISABLED, captcha=5_fails, argon2id",
+      "group_seed": "251891",
+      "total_attempts": 25,
+      "successful_attempts": 1,
+      "failed_attempts": 24,
+      "blocked_attempts": 0,
+      "compromised_accounts": [
+        "weak01:123456"
+      ],
+      "latencies_ms": "[25 samples]",
+      "total_time_seconds": 0.23,
+      "attempts_per_second": 109.17,
+      "time_to_first_compromise_seconds": 0.04,
+      "success_rate_percent": 4.0,
+      "block_rate_percent": 0.0,
+      "avg_latency_ms": 9.16,
+      "p95_latency_ms": 37.1
+    },
+    {
+      "attack_type": "password_spray",
+      "config_name": "pepper_no_ratelimit",
+      "defense_config": "pepper=enabled, rate_limit=DISABLED, captcha=5_fails, argon2id",
+      "group_seed": "251891",
+      "total_attempts": 75,
+      "successful_attempts": 0,
+      "failed_attempts": 75,
+      "blocked_attempts": 0,
+      "compromised_accounts": [],
+      "latencies_ms": "[75 samples]",
+      "total_time_seconds": 0.05,
+      "attempts_per_second": 1484.52,
+      "time_to_first_compromise_seconds": null,
+      "success_rate_percent": 0.0,
+      "block_rate_percent": 0.0,
+      "avg_latency_ms": 0.67,
+      "p95_latency_ms": 0.87
+    }
+  ],
+  "summary": {
+    "total_attacks": 2,
+    "total_compromised": 1,
+    "defense_effectiveness": "PEPPER provides no protection against online attacks (attacker doesn't need to know pepper)"
+  }
+}

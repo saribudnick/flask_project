@@ -1,0 +1,182 @@
+{
+  "report_title": "Defense Configuration Comparison - Attack Simulation Results",
+  "group_seed": "251891",
+  "test_parameters": {
+    "attack_type": "password_spray",
+    "max_attempts": "200-930 per test",
+    "password_list": "14-31 common passwords",
+    "target_users": "15-30 test accounts"
+  },
+  "results_summary": [
+    {
+      "config": "NO DEFENSES (baseline)",
+      "defenses": {
+        "pepper": false,
+        "rate_limit": false,
+        "captcha": false
+      },
+      "attempts": 930,
+      "compromised": 20,
+      "blocked": 0,
+      "success_rate": "2.15%",
+      "block_rate": "0%",
+      "avg_latency_ms": 33.17,
+      "time_to_crack_sec": 0.54,
+      "effectiveness": "VULNERABLE"
+    },
+    {
+      "config": "PEPPER ONLY",
+      "defenses": {
+        "pepper": true,
+        "rate_limit": false,
+        "captcha": false
+      },
+      "attempts": 930,
+      "compromised": 20,
+      "blocked": 0,
+      "success_rate": "2.15%",
+      "block_rate": "0%",
+      "avg_latency_ms": 33.17,
+      "time_to_crack_sec": 0.54,
+      "effectiveness": "VULNERABLE (pepper doesn't help online)"
+    },
+    {
+      "config": "RATE LIMIT ONLY (5/min)",
+      "defenses": {
+        "pepper": false,
+        "rate_limit": true,
+        "captcha": false
+      },
+      "attempts": 75,
+      "compromised": 0,
+      "blocked": 75,
+      "success_rate": "0%",
+      "block_rate": "100%",
+      "avg_latency_ms": 0.94,
+      "time_to_crack_sec": null,
+      "effectiveness": "PROTECTED"
+    },
+    {
+      "config": "CAPTCHA ONLY (after 5 fails)",
+      "defenses": {
+        "pepper": false,
+        "rate_limit": false,
+        "captcha": true
+      },
+      "attempts": 200,
+      "compromised": 11,
+      "blocked": 145,
+      "success_rate": "5.5%",
+      "block_rate": "72.5%",
+      "avg_latency_ms": 34.44,
+      "time_to_crack_sec": 0.04,
+      "effectiveness": "PARTIALLY PROTECTED"
+    },
+    {
+      "config": "ALL DEFENSES",
+      "defenses": {
+        "pepper": true,
+        "rate_limit": true,
+        "captcha": true
+      },
+      "attempts": 75,
+      "compromised": 0,
+      "blocked": 75,
+      "success_rate": "0%",
+      "block_rate": "100%",
+      "avg_latency_ms": 0.75,
+      "time_to_crack_sec": null,
+      "effectiveness": "FULLY PROTECTED"
+    }
+  ],
+  "latency_distribution": {
+    "no_defense": {
+      "min": 29.81,
+      "avg": 33.17,
+      "p50": 32.5,
+      "p95": 36.58,
+      "max": 54.66
+    },
+    "pepper_only": {
+      "min": 29.81,
+      "avg": 33.17,
+      "p50": 32.5,
+      "p95": 36.58,
+      "max": 54.66
+    },
+    "rate_limit": {
+      "min": 0.58,
+      "avg": 0.94,
+      "p50": 0.85,
+      "p95": 1.6,
+      "max": 1.92
+    },
+    "captcha": {
+      "min": 0.67,
+      "avg": 7.18,
+      "p50": 1.2,
+      "p95": 35.76,
+      "max": 54.71
+    },
+    "all_defenses": {
+      "min": 0.57,
+      "avg": 3.3,
+      "p50": 0.75,
+      "p95": 31.48,
+      "max": 33.87
+    }
+  },
+  "analysis": {
+    "defense_effectiveness_ranking": [
+      {
+        "rank": 1,
+        "defense": "Rate Limiting (5/min)",
+        "block_rate": "100%",
+        "note": "Most effective single defense"
+      },
+      {
+        "rank": 2,
+        "defense": "All Defenses Combined",
+        "block_rate": "100%",
+        "note": "Defense in depth"
+      },
+      {
+        "rank": 3,
+        "defense": "CAPTCHA (after 5 fails)",
+        "block_rate": "72.5%",
+        "note": "Effective but bypassable via admin endpoint"
+      },
+      {
+        "rank": 4,
+        "defense": "Pepper",
+        "block_rate": "0%",
+        "note": "NO protection against online attacks"
+      },
+      {
+        "rank": 5,
+        "defense": "No Defense",
+        "block_rate": "0%",
+        "note": "Baseline - completely vulnerable"
+      }
+    ],
+    "key_insights": [
+      "\ud83d\udd34 PEPPER: Provides 0% protection against online attacks - attacker sends plaintext, server applies pepper internally",
+      "\ud83d\udfe2 RATE LIMITING: Most effective - blocks 100% of spray attacks, limits brute-force to 5 attempts/min",
+      "\ud83d\udfe1 CAPTCHA: Good secondary defense - blocked 72.5% but can be automated via admin endpoint",
+      "\ud83d\udfe2 ARGON2ID: Slows each attempt to ~33ms, making large-scale attacks impractical",
+      "\u26a1 COMBINED: Defense-in-depth provides multiple layers of protection"
+    ],
+    "latency_impact": {
+      "blocked_requests": "0.5-2ms (fast rejection)",
+      "processed_requests": "29-55ms (argon2id verification)",
+      "observation": "Rate limiting reduces server load by fast-rejecting blocked requests"
+    }
+  },
+  "recommendations": [
+    "1. ALWAYS enable rate limiting - single most effective defense",
+    "2. Use CAPTCHA as secondary defense after rate limit",
+    "3. Pepper is valuable for OFFLINE attack protection only",
+    "4. Argon2id with time=1, memory=64MB provides good balance",
+    "5. Monitor logs for attack patterns (group_seed: 251891)"
+  ]
+}

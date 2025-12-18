@@ -31,3 +31,7 @@ Thumbs.db
 *.db
 *.sqlite3
 
+# Logs
+log.attempts
+*.log
+
