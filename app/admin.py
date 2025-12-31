@@ -178,6 +178,81 @@ def group_info():
     })
 
 
+@admin_bp.route("/unlock_account", methods=["POST"])
+def unlock_account():
+    """
+    Manually unlock a user account that has been locked due to failed login attempts.
+    
+    JSON body:
+        {"username": "user01"}
+    
+    Returns:
+        {"msg": "account unlocked", "username": "..."}
+    """
+    from .models import User, db
+    
+    data = request.get_json() or {}
+    username = data.get("username")
+    
+    if not username:
+        return jsonify({"error": "username required"}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+    
+    was_locked = user.is_locked()
+    user.reset_failed_login_attempts()
+    db.session.commit()
+    
+    return jsonify({
+        "msg": "account unlocked" if was_locked else "account was not locked",
+        "username": username,
+        "was_locked": was_locked,
+        "failed_attempts_reset": True
+    })
+
+
+@admin_bp.route("/account_status", methods=["GET"])
+def account_status():
+    """
+    Get account lockout status for a user.
+    
+    Query params:
+        username: The username to check
+    
+    Returns:
+        {
+            "username": "...",
+            "is_locked": false,
+            "failed_login_attempts": 2,
+            "locked_until": null,
+            "remaining_attempts": 3
+        }
+    """
+    from .models import User, MAX_FAILED_LOGIN_ATTEMPTS
+    
+    username = request.args.get("username")
+    if not username:
+        return jsonify({"error": "username query parameter required"}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+    
+    is_locked = user.is_locked()
+    
+    return jsonify({
+        "username": username,
+        "is_locked": is_locked,
+        "failed_login_attempts": user.failed_login_attempts,
+        "locked_until": user.locked_until.isoformat() if user.locked_until else None,
+        "locked_until_seconds": user.get_lockout_remaining_seconds() if is_locked else 0,
+        "remaining_attempts": max(0, MAX_FAILED_LOGIN_ATTEMPTS - user.failed_login_attempts) if not is_locked else 0,
+        "max_attempts": MAX_FAILED_LOGIN_ATTEMPTS
+    })
+
+
 @admin_bp.route("/totp_drift_test", methods=["POST"])
 def totp_drift_test():
     """

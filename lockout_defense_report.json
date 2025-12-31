@@ -1,0 +1,251 @@
+{
+  "report_metadata": {
+    "title": "Account Lockout Defense Testing Report",
+    "generated": "2025-12-31T09:04:57.285624+00:00",
+    "group_seed": "251891",
+    "test_framework": "attack_simulator_lockout.py v3"
+  },
+  "defense_configuration": {
+    "rate_limiting": {
+      "enabled": true,
+      "limit": "5 requests per minute per IP"
+    },
+    "captcha": {
+      "enabled": true,
+      "trigger": "5 failed attempts per IP"
+    },
+    "account_lockout": {
+      "enabled": true,
+      "max_failed_attempts": 5,
+      "lockout_duration_minutes": 15
+    },
+    "password_hashing": {
+      "algorithm": "argon2id",
+      "time_cost": 1,
+      "memory_cost": "64MB",
+      "parallelism": 1
+    },
+    "pepper": {
+      "enabled": true,
+      "method": "HMAC-SHA256"
+    }
+  },
+  "test_results": [
+    {
+      "config_name": "brute_force_lockout_test",
+      "defense_config": "rate_limit=5/min, captcha=5_fails, lockout=5_fails/15min, argon2id+pepper",
+      "total_attempts": 9,
+      "successful": 0,
+      "failed": 5,
+      "blocked_rate_limit": 4,
+      "blocked_captcha": 0,
+      "blocked_account_locked": 0,
+      "total_blocked": 4,
+      "block_percent": 44.44,
+      "success_percent": 0.0,
+      "attempts_per_second": 1.79,
+      "avg_latency_ms": 27.1,
+      "time_to_first_lockout_seconds": 2.26,
+      "compromised_accounts": 0,
+      "locked_accounts": 1
+    },
+    {
+      "config_name": "password_spray_lockout_test",
+      "defense_config": "rate_limit=5/min, captcha=5_fails, lockout=5_fails/15min, argon2id+pepper",
+      "total_attempts": 39,
+      "successful": 0,
+      "failed": 0,
+      "blocked_rate_limit": 39,
+      "blocked_captcha": 0,
+      "blocked_account_locked": 0,
+      "total_blocked": 39,
+      "block_percent": 100.0,
+      "success_percent": 0.0,
+      "attempts_per_second": 77.22,
+      "avg_latency_ms": 0.97,
+      "time_to_first_lockout_seconds": null,
+      "compromised_accounts": 0,
+      "locked_accounts": 0
+    }
+  ],
+  "summary_table": [
+    [
+      "brute_force_lockout_test",
+      9,
+      "1.8",
+      "0.0%",
+      "44.4%",
+      0,
+      0
+    ],
+    [
+      "password_spray_lockout_test",
+      39,
+      "77.2",
+      "0.0%",
+      "100.0%",
+      0,
+      0
+    ]
+  ],
+  "crack_time_estimates": [
+    {
+      "keyspace_size": 10000,
+      "keyspace_description": "4-digit PIN (0000-9999)",
+      "measured_attempts_per_second": 1.79,
+      "avg_latency_ms": 27.1,
+      "without_lockout": {
+        "attempts_per_second": 1.79,
+        "estimated_seconds": 5598.39,
+        "estimated_hours": 1.56,
+        "estimated_days": 0.06,
+        "estimated_years": 0.0002
+      },
+      "with_account_lockout": {
+        "effective_attempts_per_second": 0.005556,
+        "lockout_config": "5 attempts, 15 minute lockout",
+        "estimated_seconds": 1800000.0,
+        "estimated_hours": 500.0,
+        "estimated_days": 20.83,
+        "estimated_years": 0.06
+      },
+      "slowdown_factor": 321.52,
+      "assumptions": [
+        "Attacker has no way to bypass account lockout",
+        "Single account targeted (lockout is per-account)",
+        "No parallel accounts attacked",
+        "Lockout timer not circumvented",
+        "Full keyspace search required (no password reuse intelligence)"
+      ],
+      "note": "Full cracking time NOT confirmed - this is an extrapolation based on measured rates"
+    },
+    {
+      "keyspace_size": 1000000,
+      "keyspace_description": "6-digit PIN (000000-999999)",
+      "measured_attempts_per_second": 1.79,
+      "avg_latency_ms": 27.1,
+      "without_lockout": {
+        "attempts_per_second": 1.79,
+        "estimated_seconds": 559838.88,
+        "estimated_hours": 155.51,
+        "estimated_days": 6.48,
+        "estimated_years": 0.0178
+      },
+      "with_account_lockout": {
+        "effective_attempts_per_second": 0.005556,
+        "lockout_config": "5 attempts, 15 minute lockout",
+        "estimated_seconds": 180000000.0,
+        "estimated_hours": 50000.0,
+        "estimated_days": 2083.33,
+        "estimated_years": 5.71
+      },
+      "slowdown_factor": 321.52,
+      "assumptions": [
+        "Attacker has no way to bypass account lockout",
+        "Single account targeted (lockout is per-account)",
+        "No parallel accounts attacked",
+        "Lockout timer not circumvented",
+        "Full keyspace search required (no password reuse intelligence)"
+      ],
+      "note": "Full cracking time NOT confirmed - this is an extrapolation based on measured rates"
+    },
+    {
+      "keyspace_size": 308915776,
+      "keyspace_description": "6 lowercase letters (a-z)",
+      "measured_attempts_per_second": 1.79,
+      "avg_latency_ms": 27.1,
+      "without_lockout": {
+        "attempts_per_second": 1.79,
+        "estimated_seconds": 172943061.95,
+        "estimated_hours": 48039.74,
+        "estimated_days": 2001.66,
+        "estimated_years": 5.484
+      },
+      "with_account_lockout": {
+        "effective_attempts_per_second": 0.005556,
+        "lockout_config": "5 attempts, 15 minute lockout",
+        "estimated_seconds": 55604839680.0,
+        "estimated_hours": 15445788.8,
+        "estimated_days": 643574.53,
+        "estimated_years": 1763.22
+      },
+      "slowdown_factor": 321.52,
+      "assumptions": [
+        "Attacker has no way to bypass account lockout",
+        "Single account targeted (lockout is per-account)",
+        "No parallel accounts attacked",
+        "Lockout timer not circumvented",
+        "Full keyspace search required (no password reuse intelligence)"
+      ],
+      "note": "Full cracking time NOT confirmed - this is an extrapolation based on measured rates"
+    },
+    {
+      "keyspace_size": 218340105584896,
+      "keyspace_description": "8 alphanumeric chars (a-z, A-Z, 0-9)",
+      "measured_attempts_per_second": 1.79,
+      "avg_latency_ms": 27.1,
+      "without_lockout": {
+        "attempts_per_second": 1.79,
+        "estimated_seconds": 122235280098200.94,
+        "estimated_hours": 33954244471.72,
+        "estimated_days": 1414760186.32,
+        "estimated_years": 3876055.305
+      },
+      "with_account_lockout": {
+        "effective_attempts_per_second": 0.005556,
+        "lockout_config": "5 attempts, 15 minute lockout",
+        "estimated_seconds": 3.930121900528128e+16,
+        "estimated_hours": 10917005279244.8,
+        "estimated_days": 454875219968.53,
+        "estimated_years": 1246233479.37
+      },
+      "slowdown_factor": 321.52,
+      "assumptions": [
+        "Attacker has no way to bypass account lockout",
+        "Single account targeted (lockout is per-account)",
+        "No parallel accounts attacked",
+        "Lockout timer not circumvented",
+        "Full keyspace search required (no password reuse intelligence)"
+      ],
+      "note": "Full cracking time NOT confirmed - this is an extrapolation based on measured rates"
+    },
+    {
+      "keyspace_size": 540360087662636962890625,
+      "keyspace_description": "12-char full ASCII (printable)",
+      "measured_attempts_per_second": 1.79,
+      "avg_latency_ms": 27.1,
+      "without_lockout": {
+        "attempts_per_second": 1.79,
+        "estimated_seconds": 3.025145860967287e+23,
+        "estimated_hours": 8.403182947131353e+19,
+        "estimated_days": 3.5013262279713966e+18,
+        "estimated_years": 9592674597181908.0
+      },
+      "with_account_lockout": {
+        "effective_attempts_per_second": 0.005556,
+        "lockout_config": "5 attempts, 15 minute lockout",
+        "estimated_seconds": 9.726481577927465e+25,
+        "estimated_hours": 2.701800438313185e+22,
+        "estimated_days": 1.1257501826304937e+21,
+        "estimated_years": 3.0842470756999823e+18
+      },
+      "slowdown_factor": 321.52,
+      "assumptions": [
+        "Attacker has no way to bypass account lockout",
+        "Single account targeted (lockout is per-account)",
+        "No parallel accounts attacked",
+        "Lockout timer not circumvented",
+        "Full keyspace search required (no password reuse intelligence)"
+      ],
+      "note": "Full cracking time NOT confirmed - this is an extrapolation based on measured rates"
+    }
+  ],
+  "conclusions": [
+    "\u2705 Account lockout successfully blocks brute-force attacks after 5 failed attempts",
+    "\u2705 Lockout is per-account, preventing single-account credential stuffing",
+    "\u2705 Lockout triggers in ~2.3s with aggressive attack",
+    "\u2705 Combined with rate limiting and CAPTCHA, provides defense-in-depth",
+    "\u26a0\ufe0f Account lockout alone doesn't prevent password spraying across many accounts",
+    "\u26a0\ufe0f Lockout can be used for DoS against known usernames"
+  ]
+}

@@ -4,6 +4,7 @@ import pyotp
 import hmac
 import hashlib
 import os
+from datetime import datetime, timedelta
 from argon2 import PasswordHasher, Type
 from argon2.exceptions import VerifyMismatchError
 
@@ -22,6 +23,10 @@ DEFAULT_HASH_ALGORITHM = "argon2id"
 # Set via: export APP_PEPPER_KEY="your-secret-pepper-key"
 PEPPER = os.environ.get("APP_PEPPER_KEY", "S3cr3tP3pp3rK3y_251891_Pr0t3ct10n!")
 PEPPER_ENABLED = bool(PEPPER)
+
+# Account Lockout Configuration
+MAX_FAILED_LOGIN_ATTEMPTS = int(os.environ.get("MAX_FAILED_LOGIN_ATTEMPTS", 5))
+LOCKOUT_DURATION_MINUTES = int(os.environ.get("LOCKOUT_DURATION_MINUTES", 15))
 
 
 def apply_pepper(password: str) -> str:
@@ -43,6 +48,10 @@ class User(db.Model):
     password_hash = db.Column(db.String(200), nullable=False)
     hash_algorithm = db.Column(db.String(20), default="bcrypt")  # 'bcrypt' or 'argon2id'
     totp_secret = db.Column(db.String(32), nullable=True)
+    
+    # Account lockout fields
+    failed_login_attempts = db.Column(db.Integer, default=0, nullable=False)
+    locked_until = db.Column(db.DateTime, nullable=True)
 
     def _get_argon2_hasher(self):
         """Get Argon2id hasher with spec-compliant parameters"""
@@ -119,3 +128,39 @@ class User(db.Model):
             return False
         totp = pyotp.TOTP(self.totp_secret)
         return totp.verify(code)
+
+    # Account lockout methods
+    def is_locked(self) -> bool:
+        """Check if the account is currently locked."""
+        if self.locked_until is None:
+            return False
+        if datetime.utcnow() >= self.locked_until:
+            # Lockout expired, reset
+            self.locked_until = None
+            self.failed_login_attempts = 0
+            return False
+        return True
+
+    def get_lockout_remaining_seconds(self) -> int:
+        """Get remaining lockout time in seconds."""
+        if not self.is_locked():
+            return 0
+        remaining = (self.locked_until - datetime.utcnow()).total_seconds()
+        return max(0, int(remaining))
+
+    def record_failed_login(self) -> bool:
+        """
+        Record a failed login attempt.
+        Returns True if account is now locked.
+        """
+        self.failed_login_attempts += 1
+        
+        if self.failed_login_attempts >= MAX_FAILED_LOGIN_ATTEMPTS:
+            self.locked_until = datetime.utcnow() + timedelta(minutes=LOCKOUT_DURATION_MINUTES)
+            return True
+        return False
+
+    def reset_failed_login_attempts(self):
+        """Reset failed login attempts on successful login."""
+        self.failed_login_attempts = 0
+        self.locked_until = None

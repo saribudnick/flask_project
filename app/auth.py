@@ -1,6 +1,6 @@
 import time
 from flask import Blueprint, request, jsonify, current_app
-from .models import User, db, DEFAULT_HASH_ALGORITHM
+from .models import User, db, DEFAULT_HASH_ALGORITHM, MAX_FAILED_LOGIN_ATTEMPTS, LOCKOUT_DURATION_MINUTES
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from .auth_logger import log_auth_attempt
 from .extensions import limiter, captcha_manager
@@ -27,6 +27,8 @@ def get_protection_flags():
         flags.append("rate_limited")
     if current_app.config.get("CAPTCHA_ENABLED", True):
         flags.append("captcha_enabled")
+    if current_app.config.get("ACCOUNT_LOCKOUT_ENABLED", True):
+        flags.append("account_lockout")
     if PEPPER_ENABLED:
         flags.append("pepper")
     return flags
@@ -172,13 +174,39 @@ def login():
 
     user = User.query.filter_by(username=username).first()
 
+    # Check account lockout (before password verification to prevent timing attacks)
+    if user and user.is_locked():
+        remaining = user.get_lockout_remaining_seconds()
+        latency = (time.perf_counter() - start_time) * 1000
+        log_auth_attempt(
+            username=username,
+            result="blocked_account_locked",
+            latency_ms=latency,
+            hash_mode=user.hash_algorithm,
+            protection_flags=protection_flags + ["account_locked"]
+        )
+        return jsonify({
+            "error": "account_locked",
+            "message": f"Account is locked due to too many failed login attempts. Try again in {remaining} seconds.",
+            "locked_until_seconds": remaining
+        }), 423
+
     if not user or not user.check_password(password):
         # Record failed attempt for CAPTCHA tracking
         captcha_now_required = captcha_manager.record_failed_attempt(ip)
         
+        # Record failed attempt for account lockout
+        account_now_locked = False
+        if user:
+            account_now_locked = user.record_failed_login()
+            db.session.commit()
+        
         latency = (time.perf_counter() - start_time) * 1000
         result = "failure_invalid_credentials"
-        if captcha_now_required:
+        if account_now_locked:
+            result = "failure_account_now_locked"
+            protection_flags.append("account_locked")
+        elif captcha_now_required:
             result = "failure_invalid_credentials_captcha_triggered"
             protection_flags.append("captcha_triggered")
         
@@ -191,14 +219,20 @@ def login():
         )
         
         response = {"error": "invalid credentials"}
-        if captcha_now_required:
+        if account_now_locked:
+            response["account_locked"] = True
+            response["message"] = f"Account locked for {LOCKOUT_DURATION_MINUTES} minutes due to {MAX_FAILED_LOGIN_ATTEMPTS} failed attempts."
+            response["locked_until_seconds"] = user.get_lockout_remaining_seconds()
+        elif captcha_now_required:
             response["captcha_required"] = True
             response["message"] = "Too many failed attempts. CAPTCHA required for next attempt."
         
         return jsonify(response), 401
 
-    # Successful authentication - reset CAPTCHA counter
+    # Successful authentication - reset counters
     captcha_manager.record_success(ip)
+    user.reset_failed_login_attempts()
+    db.session.commit()
 
     # Lazy migration: upgrade hash if needed
     migrated_from = migrate_password_if_needed(user, password)
@@ -266,18 +300,53 @@ def login_totp():
 
     user = User.query.filter_by(username=username).first()
 
-    if not user or not user.check_password(password):
-        captcha_now_required = captcha_manager.record_failed_attempt(ip)
-        
+    # Check account lockout (before password verification to prevent timing attacks)
+    if user and user.is_locked():
+        remaining = user.get_lockout_remaining_seconds()
         latency = (time.perf_counter() - start_time) * 1000
         log_auth_attempt(
             username=username,
-            result="failure_invalid_credentials",
+            result="blocked_account_locked",
+            latency_ms=latency,
+            hash_mode=user.hash_algorithm,
+            protection_flags=protection_flags + ["account_locked"]
+        )
+        return jsonify({
+            "error": "account_locked",
+            "message": f"Account is locked due to too many failed login attempts. Try again in {remaining} seconds.",
+            "locked_until_seconds": remaining
+        }), 423
+
+    if not user or not user.check_password(password):
+        captcha_now_required = captcha_manager.record_failed_attempt(ip)
+        
+        # Record failed attempt for account lockout
+        account_now_locked = False
+        if user:
+            account_now_locked = user.record_failed_login()
+            db.session.commit()
+        
+        latency = (time.perf_counter() - start_time) * 1000
+        result = "failure_invalid_credentials"
+        if account_now_locked:
+            result = "failure_account_now_locked"
+            protection_flags.append("account_locked")
+        
+        log_auth_attempt(
+            username=username,
+            result=result,
             latency_ms=latency,
             hash_mode=user.hash_algorithm if user else "unknown",
             protection_flags=protection_flags
         )
-        return jsonify({"error": "invalid credentials"}), 401
+        
+        response = {"error": "invalid credentials"}
+        if account_now_locked:
+            response["account_locked"] = True
+            response["message"] = f"Account locked for {LOCKOUT_DURATION_MINUTES} minutes due to {MAX_FAILED_LOGIN_ATTEMPTS} failed attempts."
+            response["locked_until_seconds"] = user.get_lockout_remaining_seconds()
+        
+        return jsonify(response), 401
 
     if not user.totp_secret:
         latency = (time.perf_counter() - start_time) * 1000
@@ -293,18 +362,36 @@ def login_totp():
     if not user.verify_totp(totp_code):
         captcha_now_required = captcha_manager.record_failed_attempt(ip)
         
+        # Record failed attempt for account lockout (invalid TOTP counts as failed)
+        account_now_locked = user.record_failed_login()
+        db.session.commit()
+        
         latency = (time.perf_counter() - start_time) * 1000
+        result = "failure_invalid_totp"
+        if account_now_locked:
+            result = "failure_invalid_totp_account_locked"
+            protection_flags.append("account_locked")
+        
         log_auth_attempt(
             username=username,
-            result="failure_invalid_totp",
+            result=result,
             latency_ms=latency,
             hash_mode=user.hash_algorithm,
             protection_flags=protection_flags
         )
-        return jsonify({"error": "invalid TOTP code"}), 401
+        
+        response = {"error": "invalid TOTP code"}
+        if account_now_locked:
+            response["account_locked"] = True
+            response["message"] = f"Account locked for {LOCKOUT_DURATION_MINUTES} minutes due to {MAX_FAILED_LOGIN_ATTEMPTS} failed attempts."
+            response["locked_until_seconds"] = user.get_lockout_remaining_seconds()
+        
+        return jsonify(response), 401
 
-    # Successful authentication - reset CAPTCHA counter
+    # Successful authentication - reset counters
     captcha_manager.record_success(ip)
+    user.reset_failed_login_attempts()
+    db.session.commit()
 
     # Lazy migration: upgrade hash if needed
     migrated_from = migrate_password_if_needed(user, password)
