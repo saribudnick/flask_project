@@ -30,6 +30,7 @@ A Flask REST API implementing secure authentication with multiple defense mechan
 | **Pepper** | ✅ Enabled | HMAC-SHA256 server secret |
 | **Rate Limiting** | ✅ Configurable | Flask-Limiter (5 attempts/min on login) |
 | **CAPTCHA** | ✅ Configurable | After 5 failed attempts per IP |
+| **Account Lockout** | ✅ Enabled | 5 failed attempts → 15 min lockout per account |
 | **TOTP (2FA)** | ✅ Enabled | pyotp-based time-based OTP |
 
 ---
@@ -85,6 +86,8 @@ The server runs on `http://127.0.0.1:5000`
 | `/admin/get_captcha_token` | GET | Get bypass CAPTCHA token |
 | `/admin/reset_captcha` | POST | Reset CAPTCHA state for IP |
 | `/admin/captcha_status` | GET | Check CAPTCHA status for IP |
+| `/admin/unlock_account` | POST | Manually unlock a locked account |
+| `/admin/account_status` | GET | Check account lockout status |
 | `/admin/setup_totp_users` | POST | Bulk setup TOTP for users |
 | `/admin/server_time` | GET | Get server timestamp |
 | `/admin/totp_drift_test` | POST | Test TOTP with clock drift |
@@ -210,12 +213,97 @@ curl -X POST http://127.0.0.1:5000/auth/login \
 
 ---
 
+## Account Lockout
+
+### Overview
+Account lockout provides per-account protection against brute-force attacks by temporarily locking accounts after repeated failed login attempts.
+
+### Configuration
+| Setting | Default | Environment Variable |
+|---------|---------|---------------------|
+| Max Failed Attempts | 5 | `MAX_FAILED_LOGIN_ATTEMPTS` |
+| Lockout Duration | 15 minutes | `LOCKOUT_DURATION_MINUTES` |
+
+### How It Works
+1. Each failed login attempt increments the account's `failed_login_attempts` counter
+2. After 5 failed attempts, the account is locked for 15 minutes
+3. Successful login resets the counter to 0
+4. Lockout automatically expires after the duration
+
+### Response When Locked (HTTP 423)
+```json
+{
+  "error": "account_locked",
+  "message": "Account is locked due to too many failed login attempts. Try again in 899 seconds.",
+  "locked_until_seconds": 899
+}
+```
+
+### Response When Lockout Triggered (HTTP 401)
+```json
+{
+  "error": "invalid credentials",
+  "account_locked": true,
+  "message": "Account locked for 15 minutes due to 5 failed attempts.",
+  "locked_until_seconds": 900
+}
+```
+
+### Admin Endpoints
+```bash
+# Check account lockout status
+curl "http://127.0.0.1:5000/admin/account_status?username=weak01"
+
+# Response
+{
+  "username": "weak01",
+  "is_locked": true,
+  "failed_login_attempts": 5,
+  "locked_until": "2025-12-31T09:19:53.945413",
+  "locked_until_seconds": 899,
+  "remaining_attempts": 0,
+  "max_attempts": 5
+}
+
+# Manually unlock an account
+curl -X POST http://127.0.0.1:5000/admin/unlock_account \
+  -H "Content-Type: application/json" \
+  -d '{"username": "weak01"}'
+```
+
+### Defense Effectiveness
+| Metric | Without Lockout | With Lockout | Slowdown Factor |
+|--------|-----------------|--------------|-----------------|
+| 4-digit PIN | 1.56 hours | 20.83 days | **321x** |
+| 6-digit PIN | 6.48 days | 5.71 years | **321x** |
+| 6 lowercase chars | 5.48 years | 1,763 years | **321x** |
+| 8 alphanumeric | 3.8M years | 1.2B years | **321x** |
+
+### Comparison with Other Defenses
+| Defense | Scope | Trigger |
+|---------|-------|---------|
+| Rate Limiting | Per IP | 5 requests/minute |
+| CAPTCHA | Per IP | 5 failed attempts |
+| **Account Lockout** | **Per Account** | **5 failed attempts** |
+
+### Security Considerations
+- ✅ Prevents brute-force attacks on individual accounts
+- ✅ Works independently of IP-based defenses
+- ✅ Auto-expires to prevent permanent lockout
+- ⚠️ Can be used for DoS against known usernames (enumeration risk)
+- ⚠️ Does not prevent password spraying across many accounts
+
+---
+
 ## Attack Simulation
 
-### Running Attack Simulator
+### Running Attack Simulators
 ```bash
-# Run comprehensive attack simulation
+# Run comprehensive attack simulation (rate limiting, CAPTCHA, TOTP)
 python3 attack_simulator_v2.py
+
+# Run account lockout defense test
+python3 attack_simulator_lockout.py
 ```
 
 ### Attack Types
@@ -240,6 +328,8 @@ python3 attack_simulator_v2.py
 - `attack_metrics_*.json` - Detailed metrics per run
 - `defense_comparison_report.json` - Comparison across configurations
 - `comprehensive_defense_report.json` - Full analysis
+- `lockout_defense_report.json` - Account lockout testing report
+- `attempts.log` - Raw attack attempt log with timestamps
 
 ---
 
@@ -301,6 +391,8 @@ See `users.json` for complete list with credentials.
 | `APP_PEPPER_KEY` | Secret pepper for password hashing | Built-in default |
 | `SECRET_KEY` | Flask session secret | dev-secret-key |
 | `JWT_SECRET_KEY` | JWT signing key | jwt-secret-key |
+| `MAX_FAILED_LOGIN_ATTEMPTS` | Failed attempts before lockout | 5 |
+| `LOCKOUT_DURATION_MINUTES` | Account lockout duration | 15 |
 
 ### Application Configuration (`run.py`)
 ```python
@@ -330,8 +422,11 @@ flask_project/
 │   └── app.db               # SQLite database
 ├── migrations/              # Database migrations
 ├── attack_simulator_v2.py   # Attack simulation script
+├── attack_simulator_lockout.py  # Account lockout testing script
 ├── comprehensive_defense_test.py
 ├── log.attempts             # Authentication logs
+├── attempts.log             # Raw attack attempt log
+├── lockout_defense_report.json  # Lockout test results
 ├── requirements.txt         # Python dependencies
 ├── run.py                   # Application entry point
 ├── totp_automation.py       # TOTP utilities
@@ -373,8 +468,17 @@ psutil==5.9.7
 | No defenses | ~850 attempts/sec | High success |
 | Rate limiting | ~0.08 attempts/sec | Significantly slowed |
 | CAPTCHA | Blocked after 5 fails | Blocked per IP |
+| **Account Lockout** | **321x slowdown per account** | **Per-account protection** |
 | Pepper | No offline cracking | Requires server access |
 | Full defenses | Maximum protection | Minimal success |
+
+### Account Lockout Test Results
+| Metric | Value |
+|--------|-------|
+| Time to trigger lockout | ~2.3 seconds |
+| Lockout duration | 15 minutes |
+| Effective attempts/sec with lockout | 0.0056 |
+| Slowdown factor | **321x** |
 
 ---
 
