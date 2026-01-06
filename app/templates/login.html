@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login | Group 251891</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Security Badge -->
+        <div class="security-badge">
+            <span class="badge-icon">🔐</span>
+            <span class="badge-text">Sari & Yam | Defense-in-Depth Authentication</span>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="card-header">
+                <h1>Secure Login</h1>
+                <p class="creators">Sari & Yam</p>
+                <p class="group-seed">Group Seed: <code>251891</code></p>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="status-message" class="status-message hidden"></div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                </div>
+
+                <!-- TOTP Section (hidden by default) -->
+                <div id="totp-section" class="form-group hidden">
+                    <label for="totp_code">TOTP Code</label>
+                    <input type="text" id="totp_code" name="totp_code" placeholder="6-digit code" maxlength="6" pattern="[0-9]{6}">
+                </div>
+
+                <!-- CAPTCHA Section (hidden by default) -->
+                <div id="captcha-section" class="captcha-section hidden">
+                    <div class="captcha-alert">
+                        <span class="alert-icon">⚠️</span>
+                        <span>CAPTCHA Required - Too many failed attempts</span>
+                    </div>
+                    
+                    <div class="captcha-info">
+                        <p>To get a CAPTCHA token, use group seed: <code>251891</code></p>
+                    </div>
+                    
+                    <div class="captcha-fetch-row">
+                        <button type="button" id="get-captcha-btn" class="btn btn-secondary">
+                            🔑 Get Token (Group Seed: 251891)
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="captcha_token">CAPTCHA Token</label>
+                        <input type="text" id="captcha_token" name="captcha_token" placeholder="Paste or fetch token here">
+                    </div>
+                </div>
+
+                <button type="submit" id="login-btn" class="btn btn-primary">
+                    <span id="btn-text">Login</span>
+                    <span id="btn-loader" class="loader hidden"></span>
+                </button>
+            </form>
+
+            <!-- Account Lockout Warning -->
+            <div id="lockout-warning" class="lockout-warning hidden">
+                <div class="lockout-icon">🔒</div>
+                <h3>Account Locked</h3>
+                <p id="lockout-message">Too many failed attempts</p>
+                <div class="lockout-timer">
+                    <span>Time remaining: </span>
+                    <span id="lockout-countdown">--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Defense Status Panel -->
+        <div class="defense-panel">
+            <h3>🛡️ Active Defenses</h3>
+            <div class="defense-grid">
+                <div class="defense-item active">
+                    <span class="defense-icon">⚡</span>
+                    <span class="defense-name">Rate Limiting</span>
+                    <span class="defense-detail">15/min per IP</span>
+                </div>
+                <div class="defense-item active">
+                    <span class="defense-icon">🤖</span>
+                    <span class="defense-name">CAPTCHA</span>
+                    <span class="defense-detail">After 3 fails</span>
+                </div>
+                <div class="defense-item active">
+                    <span class="defense-icon">🔒</span>
+                    <span class="defense-name">Account Lockout</span>
+                    <span class="defense-detail">5 fails → 15 min</span>
+                </div>
+                <div class="defense-item active">
+                    <span class="defense-icon">🔐</span>
+                    <span class="defense-name">Argon2id + Pepper</span>
+                    <span class="defense-detail">64MB memory</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attempt Counter -->
+        <div class="attempt-counter">
+            <span id="attempt-count">0</span> login attempts this session
+        </div>
+    </div>
+
+    <script>
+        const GROUP_SEED = '251891';
+        const API_BASE = '';
+        let attemptCount = 0;
+        let captchaToken = null;
+        let lockoutTimer = null;
+
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const statusMessage = document.getElementById('status-message');
+        const captchaSection = document.getElementById('captcha-section');
+        const totpSection = document.getElementById('totp-section');
+        const lockoutWarning = document.getElementById('lockout-warning');
+        const getCaptchaBtn = document.getElementById('get-captcha-btn');
+        const captchaTokenValue = document.getElementById('captcha-token-value');
+        const attemptCountEl = document.getElementById('attempt-count');
+        const loginBtn = document.getElementById('login-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.classList.remove('hidden');
+            
+            if (type === 'success') {
+                setTimeout(() => statusMessage.classList.add('hidden'), 3000);
+            }
+        }
+
+        // Hide status message
+        function hideStatus() {
+            statusMessage.classList.add('hidden');
+        }
+
+        // Update attempt counter
+        function updateAttemptCount() {
+            attemptCount++;
+            attemptCountEl.textContent = attemptCount;
+        }
+
+        // Set loading state
+        function setLoading(loading) {
+            loginBtn.disabled = loading;
+            btnText.textContent = loading ? 'Authenticating...' : 'Login';
+            btnLoader.classList.toggle('hidden', !loading);
+        }
+
+        // Get CAPTCHA token
+        async function getCaptchaToken() {
+            getCaptchaBtn.disabled = true;
+            getCaptchaBtn.textContent = '⏳ Fetching with Group Seed 251891...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/get_captcha_token?group_seed=${GROUP_SEED}`);
+                const data = await response.json();
+                
+                if (data.captcha_token) {
+                    captchaToken = data.captcha_token;
+                    // Put the token in the input field
+                    document.getElementById('captcha_token').value = captchaToken;
+                    showStatus('✅ CAPTCHA token fetched using Group Seed: 251891', 'success');
+                    getCaptchaBtn.textContent = '✅ Token Fetched';
+                } else {
+                    showStatus('Failed to get CAPTCHA token', 'error');
+                    getCaptchaBtn.textContent = '🔑 Retry';
+                }
+            } catch (error) {
+                showStatus('Error fetching CAPTCHA token: ' + error.message, 'error');
+                getCaptchaBtn.textContent = '🔑 Retry';
+            }
+            
+            getCaptchaBtn.disabled = false;
+        }
+
+        // Start lockout countdown
+        function startLockoutCountdown(seconds) {
+            lockoutWarning.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+            
+            const countdownEl = document.getElementById('lockout-countdown');
+            
+            function updateCountdown() {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                countdownEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                if (seconds <= 0) {
+                    clearInterval(lockoutTimer);
+                    lockoutWarning.classList.add('hidden');
+                    loginForm.classList.remove('hidden');
+                    showStatus('Account unlocked. You can try again.', 'info');
+                }
+                seconds--;
+            }
+            
+            updateCountdown();
+            lockoutTimer = setInterval(updateCountdown, 1000);
+        }
+
+        // Handle login form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideStatus();
+            setLoading(true);
+            updateAttemptCount();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const totpCode = document.getElementById('totp_code').value;
+            const captchaTokenInput = document.getElementById('captcha_token').value;
+            
+            // Prepare request body
+            const body = { username, password };
+            
+            // Add TOTP code if provided
+            if (totpCode) {
+                body.totp_code = totpCode;
+            }
+            
+            // Add CAPTCHA token if available (from input field)
+            if (captchaTokenInput) {
+                body.captcha_token = captchaTokenInput;
+            }
+            
+            // Determine endpoint
+            const endpoint = totpCode ? '/auth/login_totp' : '/auth/login';
+            
+            try {
+                const response = await fetch(API_BASE + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    // Success!
+                    showStatus('✅ Login successful! Redirecting...', 'success');
+                    localStorage.setItem('jwt_token', data.token);
+                    // Redirect or update UI as needed
+                    
+                } else if (response.status === 423) {
+                    // Account locked
+                    const lockoutMessage = document.getElementById('lockout-message');
+                    lockoutMessage.textContent = data.message || 'Account is locked due to too many failed attempts.';
+                    startLockoutCountdown(data.locked_until_seconds || 900);
+                    
+                } else if (response.status === 403) {
+                    // CAPTCHA required or TOTP required
+                    if (data.captcha_required) {
+                        captchaSection.classList.remove('hidden');
+                        showStatus('🤖 CAPTCHA required. Click "Get CAPTCHA Token" to continue.', 'warning');
+                        captchaToken = null;
+                        getCaptchaBtn.textContent = '🔑 Get CAPTCHA Token';
+                    } else if (data.totp_required) {
+                        totpSection.classList.remove('hidden');
+                        showStatus('🔐 TOTP code required. Enter your 6-digit code.', 'warning');
+                    } else {
+                        showStatus(data.message || data.error || 'Access forbidden', 'error');
+                    }
+                    
+                } else if (response.status === 401) {
+                    // Invalid credentials
+                    let message = '❌ Invalid credentials';
+                    
+                    if (data.account_locked) {
+                        message = `🔒 ${data.message}`;
+                        startLockoutCountdown(data.locked_until_seconds || 900);
+                    } else if (data.captcha_required) {
+                        captchaSection.classList.remove('hidden');
+                        message += '. CAPTCHA now required.';
+                    }
+                    
+                    showStatus(message, 'error');
+                    
+                } else if (response.status === 429) {
+                    // Rate limited
+                    showStatus('⚡ Rate limit exceeded. Please wait a moment.', 'error');
+                    
+                } else {
+                    showStatus(data.error || 'Login failed', 'error');
+                }
+                
+            } catch (error) {
+                showStatus('Network error: ' + error.message, 'error');
+            }
+            
+            setLoading(false);
+        });
+
+        // Get CAPTCHA token button handler
+        getCaptchaBtn.addEventListener('click', getCaptchaToken);
+
+        // Clear TOTP when username changes
+        document.getElementById('username').addEventListener('input', () => {
+            totpSection.classList.add('hidden');
+            document.getElementById('totp_code').value = '';
+        });
+    </script>
+</body>
+</html>
+

@@ -87,4 +87,5 @@ class CaptchaManager:
 
 
 # Global CAPTCHA manager instance
-captcha_manager = CaptchaManager(failed_threshold=5, token_ttl=300)
+# CAPTCHA triggers at 3 fails, Account Lockout at 5 fails
+captcha_manager = CaptchaManager(failed_threshold=3, token_ttl=300)

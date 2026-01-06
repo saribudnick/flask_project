@@ -152,7 +152,7 @@ def register():
 
 # --- LOGIN ---
 @auth_bp.route("/login", methods=["POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("15 per minute")  # Increased to allow CAPTCHA to trigger before rate limit
 def login():
     start_time = time.perf_counter()
     data = request.get_json() or {}
@@ -266,7 +266,7 @@ def login():
 
 # --- LOGIN WITH TOTP ---
 @auth_bp.route("/login_totp", methods=["POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("15 per minute")  # Increased to allow CAPTCHA to trigger before rate limit
 def login_totp():
     start_time = time.perf_counter()
     data = request.get_json() or {}
