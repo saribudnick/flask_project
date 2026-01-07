@@ -243,7 +243,88 @@ body {
     display: none;
 }
 
-/* CAPTCHA Section */
+/* CAPTCHA Section - Always Visible */
+.captcha-section-visible {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.captcha-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.captcha-header small {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.captcha-row {
+    display: flex;
+    gap: 8px;
+}
+
+.captcha-row input {
+    flex: 1;
+    padding: 12px 14px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.captcha-row input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.btn-token {
+    padding: 12px 16px;
+    background: var(--accent-primary);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.btn-token:hover {
+    background: #2563eb;
+}
+
+.btn-token:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.captcha-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.captcha-hint code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-primary);
+}
+
+/* Legacy CAPTCHA Section (hidden) */
 .captcha-section {
     background: rgba(245, 158, 11, 0.1);
     border: 1px solid var(--accent-warning);
@@ -256,56 +337,6 @@ body {
 
 .captcha-section.hidden {
     display: none;
-}
-
-.captcha-alert {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--accent-warning);
-    font-size: 14px;
-}
-
-.captcha-token-display {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-}
-
-.captcha-token-display label {
-    color: var(--text-secondary);
-}
-
-.captcha-token-display code {
-    font-family: 'JetBrains Mono', monospace;
-    background: var(--bg-secondary);
-    padding: 4px 8px;
-    border-radius: 4px;
-    color: var(--accent-success);
-    font-size: 11px;
-}
-
-.captcha-info {
-    padding: 12px 14px;
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    border-radius: 8px;
-    font-size: 13px;
-    text-align: center;
-}
-
-.captcha-info code {
-    background: rgba(99, 102, 241, 0.3);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 600;
-    color: #a5b4fc;
-}
-
-.captcha-fetch-row {
-    display: flex;
-    justify-content: center;
 }
 
 /* Lockout Warning */
@@ -430,6 +461,133 @@ body {
     to {
         transform: rotate(360deg);
     }
+}
+
+/* Form Footer */
+.form-footer {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.form-footer a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Input Hints */
+.input-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: -4px;
+}
+
+/* Success State */
+.success-state {
+    text-align: center;
+    padding: 24px;
+}
+
+.success-state.hidden {
+    display: none;
+}
+
+.success-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.success-state h3 {
+    color: var(--accent-success);
+    margin-bottom: 12px;
+    font-size: 24px;
+}
+
+.success-state p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.success-state .btn {
+    display: inline-flex;
+}
+
+/* Password Strength Panel */
+.password-strength-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.password-strength-panel h3 {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.strength-indicator {
+    height: 8px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--border-color);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.strength-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.password-tips {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.password-tips li {
+    font-size: 12px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.password-tips li::before {
+    content: '○';
+    position: absolute;
+    left: 0;
+    color: var(--text-muted);
+}
+
+.password-tips li.tip-active {
+    color: var(--accent-success);
+}
+
+.password-tips li.tip-active::before {
+    content: '●';
+    color: var(--accent-success);
+}
+
+.password-tips li.tip-inactive {
+    color: var(--text-muted);
 }
 
 /* Responsive */

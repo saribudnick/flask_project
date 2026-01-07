@@ -44,27 +44,20 @@
                     <input type="text" id="totp_code" name="totp_code" placeholder="6-digit code" maxlength="6" pattern="[0-9]{6}">
                 </div>
 
-                <!-- CAPTCHA Section (hidden by default) -->
-                <div id="captcha-section" class="captcha-section hidden">
-                    <div class="captcha-alert">
-                        <span class="alert-icon">⚠️</span>
-                        <span>CAPTCHA Required - Too many failed attempts</span>
+                <!-- CAPTCHA Section (always visible) -->
+                <div id="captcha-section" class="captcha-section-visible">
+                    <div class="captcha-header">
+                        <span>🔑 CAPTCHA Token</span>
+                        <small>Required after 3 failed attempts</small>
                     </div>
                     
-                    <div class="captcha-info">
-                        <p>To get a CAPTCHA token, use group seed: <code>251891</code></p>
-                    </div>
-                    
-                    <div class="captcha-fetch-row">
-                        <button type="button" id="get-captcha-btn" class="btn btn-secondary">
-                            🔑 Get Token (Group Seed: 251891)
+                    <div class="captcha-row">
+                        <input type="text" id="captcha_token" name="captcha_token" placeholder="Token will appear here">
+                        <button type="button" id="get-captcha-btn" class="btn btn-token">
+                            Get Token
                         </button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="captcha_token">CAPTCHA Token</label>
-                        <input type="text" id="captcha_token" name="captcha_token" placeholder="Paste or fetch token here">
-                    </div>
+                    <small class="captcha-hint">Group Seed: <code>251891</code></small>
                 </div>
 
                 <button type="submit" id="login-btn" class="btn btn-primary">
@@ -82,6 +75,11 @@
                     <span>Time remaining: </span>
                     <span id="lockout-countdown">--:--</span>
                 </div>
+            </div>
+
+            <!-- Link to Register -->
+            <div class="form-footer">
+                <p>Don't have an account? <a href="/register">Create one</a></p>
             </div>
         </div>
 
@@ -128,11 +126,9 @@
         // DOM Elements
         const loginForm = document.getElementById('login-form');
         const statusMessage = document.getElementById('status-message');
-        const captchaSection = document.getElementById('captcha-section');
         const totpSection = document.getElementById('totp-section');
         const lockoutWarning = document.getElementById('lockout-warning');
         const getCaptchaBtn = document.getElementById('get-captcha-btn');
-        const captchaTokenValue = document.getElementById('captcha-token-value');
         const attemptCountEl = document.getElementById('attempt-count');
         const loginBtn = document.getElementById('login-btn');
         const btnText = document.getElementById('btn-text');
@@ -170,7 +166,7 @@
         // Get CAPTCHA token
         async function getCaptchaToken() {
             getCaptchaBtn.disabled = true;
-            getCaptchaBtn.textContent = '⏳ Fetching with Group Seed 251891...';
+            getCaptchaBtn.textContent = '⏳ Fetching...';
             
             try {
                 const response = await fetch(`${API_BASE}/admin/get_captcha_token?group_seed=${GROUP_SEED}`);
@@ -180,15 +176,16 @@
                     captchaToken = data.captcha_token;
                     // Put the token in the input field
                     document.getElementById('captcha_token').value = captchaToken;
-                    showStatus('✅ CAPTCHA token fetched using Group Seed: 251891', 'success');
-                    getCaptchaBtn.textContent = '✅ Token Fetched';
+                    showStatus('✅ Token fetched (Group Seed: 251891)', 'success');
+                    getCaptchaBtn.textContent = '✅ Done';
+                    setTimeout(() => { getCaptchaBtn.textContent = 'Get Token'; }, 2000);
                 } else {
                     showStatus('Failed to get CAPTCHA token', 'error');
-                    getCaptchaBtn.textContent = '🔑 Retry';
+                    getCaptchaBtn.textContent = 'Retry';
                 }
             } catch (error) {
-                showStatus('Error fetching CAPTCHA token: ' + error.message, 'error');
-                getCaptchaBtn.textContent = '🔑 Retry';
+                showStatus('Error: ' + error.message, 'error');
+                getCaptchaBtn.textContent = 'Retry';
             }
             
             getCaptchaBtn.disabled = false;
@@ -271,10 +268,10 @@
                 } else if (response.status === 403) {
                     // CAPTCHA required or TOTP required
                     if (data.captcha_required) {
-                        captchaSection.classList.remove('hidden');
-                        showStatus('🤖 CAPTCHA required. Click "Get CAPTCHA Token" to continue.', 'warning');
-                        captchaToken = null;
-                        getCaptchaBtn.textContent = '🔑 Get CAPTCHA Token';
+                        showStatus('🤖 CAPTCHA required! Click "Get Token" button, then try again.', 'warning');
+                        // Highlight the CAPTCHA section
+                        document.getElementById('captcha-section').style.borderColor = '#f59e0b';
+                        document.getElementById('captcha_token').focus();
                     } else if (data.totp_required) {
                         totpSection.classList.remove('hidden');
                         showStatus('🔐 TOTP code required. Enter your 6-digit code.', 'warning');
@@ -290,8 +287,8 @@
                         message = `🔒 ${data.message}`;
                         startLockoutCountdown(data.locked_until_seconds || 900);
                     } else if (data.captcha_required) {
-                        captchaSection.classList.remove('hidden');
-                        message += '. CAPTCHA now required.';
+                        message += '. CAPTCHA now required - click "Get Token"!';
+                        document.getElementById('captcha-section').style.borderColor = '#f59e0b';
                     }
                     
                     showStatus(message, 'error');

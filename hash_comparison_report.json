@@ -1,0 +1,212 @@
+{
+  "metadata": {
+    "experiment": "Hash Algorithm Comparison",
+    "timestamp": "2026-01-07T12:43:47.491347Z",
+    "group_seed": "251891",
+    "authors": "Sari & Yam",
+    "test_password_length": 16,
+    "iterations": 100
+  },
+  "algorithms": [
+    {
+      "name": "SHA-256",
+      "secure_for_passwords": false,
+      "stats": {
+        "mean_ms": 0.0005,
+        "median_ms": 0.0004,
+        "min_ms": 0.0003,
+        "max_ms": 0.0155,
+        "stddev_ms": 0.0015,
+        "hashes_per_second": 1883964.16
+      },
+      "crack_times": [
+        {
+          "keyspace": "4-digit PIN",
+          "keyspace_size": 10000,
+          "seconds": 0.01,
+          "hours": 0.0,
+          "days": 0.0,
+          "years": 0.0
+        },
+        {
+          "keyspace": "6-digit PIN",
+          "keyspace_size": 1000000,
+          "seconds": 0.53,
+          "hours": 0.0,
+          "days": 0.0,
+          "years": 0.0
+        },
+        {
+          "keyspace": "6 lowercase letters",
+          "keyspace_size": 308915776,
+          "seconds": 163.97,
+          "hours": 0.05,
+          "days": 0.0,
+          "years": 0.0
+        },
+        {
+          "keyspace": "8 alphanumeric",
+          "keyspace_size": 218340105584896,
+          "seconds": 115893980.48,
+          "hours": 32192.77,
+          "days": 1341.37,
+          "years": 3.675
+        },
+        {
+          "keyspace": "10 mixed + symbols",
+          "keyspace_size": 59873693923837890625,
+          "seconds": 31780696891727.44,
+          "hours": 8827971358.81,
+          "days": 367832139.95,
+          "years": 1007759.2875
+        },
+        {
+          "keyspace": "12 mixed + symbols",
+          "keyspace_size": 540360087662636962890625,
+          "seconds": 2.8682078944784013e+17,
+          "hours": 79672441513288.92,
+          "days": 3319685063053.71,
+          "years": 9095027570.0102
+        }
+      ]
+    },
+    {
+      "name": "bcrypt (cost=12)",
+      "secure_for_passwords": true,
+      "stats": {
+        "mean_ms": 203.8346,
+        "median_ms": 203.2981,
+        "min_ms": 201.0276,
+        "max_ms": 213.948,
+        "stddev_ms": 2.2565,
+        "hashes_per_second": 4.91
+      },
+      "crack_times": [
+        {
+          "keyspace": "4-digit PIN",
+          "keyspace_size": 10000,
+          "seconds": 2036.66,
+          "hours": 0.57,
+          "days": 0.02,
+          "years": 0.0001
+        },
+        {
+          "keyspace": "6-digit PIN",
+          "keyspace_size": 1000000,
+          "seconds": 203665.99,
+          "hours": 56.57,
+          "days": 2.36,
+          "years": 0.0065
+        },
+        {
+          "keyspace": "6 lowercase letters",
+          "keyspace_size": 308915776,
+          "seconds": 62915636.66,
+          "hours": 17476.57,
+          "days": 728.19,
+          "years": 1.995
+        },
+        {
+          "keyspace": "8 alphanumeric",
+          "keyspace_size": 218340105584896,
+          "seconds": 44468453275946.23,
+          "hours": 12352348132.21,
+          "days": 514681172.18,
+          "years": 1410085.4032
+        },
+        {
+          "keyspace": "10 mixed + symbols",
+          "keyspace_size": 59873693923837890625,
+          "seconds": 1.2194235015038267e+19,
+          "hours": 3387287504177296.5,
+          "days": 141136979340720.7,
+          "years": 386676655728.0019
+        },
+        {
+          "keyspace": "12 mixed + symbols",
+          "keyspace_size": 540360087662636962890625,
+          "seconds": 1.1005297101072036e+23,
+          "hours": 3.0570269725200097e+19,
+          "days": 1.2737612385500042e+18,
+          "years": 3489756817945217.0
+        }
+      ]
+    },
+    {
+      "name": "Argon2id (t=1, m=64MB)",
+      "secure_for_passwords": true,
+      "memory_hard": true,
+      "stats": {
+        "mean_ms": 33.1547,
+        "median_ms": 33.1676,
+        "min_ms": 30.7475,
+        "max_ms": 38.2941,
+        "stddev_ms": 1.2255,
+        "hashes_per_second": 30.16
+      },
+      "crack_times": [
+        {
+          "keyspace": "4-digit PIN",
+          "keyspace_size": 10000,
+          "seconds": 331.56,
+          "hours": 0.09,
+          "days": 0.0,
+          "years": 0.0
+        },
+        {
+          "keyspace": "6-digit PIN",
+          "keyspace_size": 1000000,
+          "seconds": 33156.5,
+          "hours": 9.21,
+          "days": 0.38,
+          "years": 0.0011
+        },
+        {
+          "keyspace": "6 lowercase letters",
+          "keyspace_size": 308915776,
+          "seconds": 10242565.52,
+          "hours": 2845.16,
+          "days": 118.55,
+          "years": 0.3248
+        },
+        {
+          "keyspace": "8 alphanumeric",
+          "keyspace_size": 218340105584896,
+          "seconds": 7239393421249.87,
+          "hours": 2010942617.01,
+          "days": 83789275.71,
+          "years": 229559.6595
+        },
+        {
+          "keyspace": "10 mixed + symbols",
+          "keyspace_size": 59873693923837890625,
+          "seconds": 1.985202053177649e+18,
+          "hours": 551445014771569.1,
+          "days": 22976875615482.05,
+          "years": 62950344152.0056
+        },
+        {
+          "keyspace": "12 mixed + symbols",
+          "keyspace_size": 540360087662636962890625,
+          "seconds": 1.7916448529928283e+22,
+          "hours": 4.976791258313412e+18,
+          "days": 2.073663024297255e+17,
+          "years": 568126855971850.6
+        }
+      ]
+    }
+  ],
+  "comparisons": {
+    "sha256_vs_bcrypt_slowdown": 383699.0,
+    "sha256_vs_argon2_slowdown": 62466.0,
+    "bcrypt_vs_argon2_ratio": 0.16
+  },
+  "findings": [
+    "SHA-256 is 383,699x FASTER than bcrypt - NEVER use for passwords!",
+    "SHA-256 is 62,466x FASTER than Argon2id",
+    "bcrypt and Argon2id are comparable in speed (ratio: 0.16x)",
+    "Argon2id requires 64MB RAM per hash - resists GPU attacks",
+    "bcrypt is CPU-bound only - GPUs can parallelize more easily",
+    "For maximum security: Use Argon2id with high memory cost"
+  ]
+}

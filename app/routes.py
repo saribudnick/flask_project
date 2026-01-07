@@ -9,6 +9,12 @@ def index():
     return render_template("login.html")
 
 
+@main_bp.route("/register")
+def register_page():
+    """Serve the registration page"""
+    return render_template("register.html")
+
+
 @main_bp.route("/health")
 def health():
     return jsonify({"status": "ok"})
