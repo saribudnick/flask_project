@@ -1,0 +1,98 @@
+{
+  "metadata": {
+    "experiment": "Hash Algorithm Attack Comparison",
+    "timestamp": "2026-01-07T14:12:14.003765+00:00",
+    "group_seed": "251891",
+    "authors": "Sari & Yam",
+    "target_password": "123456",
+    "wordlist_size": 500,
+    "target_position": 50
+  },
+  "configuration": {
+    "bcrypt_cost": 12,
+    "argon2_time_cost": 1,
+    "argon2_memory_cost_kb": 65536
+  },
+  "results": {
+    "sha256": {
+      "algorithm": "SHA-256 (INSECURE)",
+      "total_attempts": 51,
+      "successful": true,
+      "success_attempt": 51,
+      "cracked_password": "123456",
+      "success_rate_percent": 1.9608,
+      "total_time_seconds": 0.0001,
+      "attempts_per_second": 792739.12,
+      "time_to_crack_seconds": 0.0001,
+      "latency_stats": {
+        "mean_ms": 0.001,
+        "median_ms": 0.0005,
+        "min_ms": 0.0004,
+        "max_ms": 0.0259,
+        "stddev_ms": 0.0036,
+        "p95_ms": 0.0007,
+        "p99_ms": 0.0259
+      }
+    },
+    "bcrypt": {
+      "algorithm": "bcrypt (cost=12)",
+      "total_attempts": 51,
+      "successful": true,
+      "success_attempt": 51,
+      "cracked_password": "123456",
+      "success_rate_percent": 1.9608,
+      "total_time_seconds": 10.5203,
+      "attempts_per_second": 4.85,
+      "time_to_crack_seconds": 10.5203,
+      "latency_stats": {
+        "mean_ms": 206.2771,
+        "median_ms": 205.0778,
+        "min_ms": 202.4375,
+        "max_ms": 225.4534,
+        "stddev_ms": 4.1484,
+        "p95_ms": 216.3565,
+        "p99_ms": 225.4534
+      }
+    },
+    "argon2": {
+      "algorithm": "Argon2id (64MB)",
+      "total_attempts": 51,
+      "successful": true,
+      "success_attempt": 51,
+      "cracked_password": "123456",
+      "success_rate_percent": 1.9608,
+      "total_time_seconds": 1.7714,
+      "attempts_per_second": 28.79,
+      "time_to_crack_seconds": 1.7714,
+      "latency_stats": {
+        "mean_ms": 34.7318,
+        "median_ms": 33.5252,
+        "min_ms": 31.0258,
+        "max_ms": 73.2023,
+        "stddev_ms": 6.1468,
+        "p95_ms": 41.5915,
+        "p99_ms": 73.2023
+      }
+    }
+  },
+  "comparisons": {
+    "sha256_vs_bcrypt_speed_ratio": 163451.0,
+    "sha256_vs_argon2_speed_ratio": 27535.0,
+    "bcrypt_vs_argon2_speed_ratio": 0.17,
+    "sha256_time_to_crack": 0.0001,
+    "bcrypt_time_to_crack": 10.5203,
+    "argon2_time_to_crack": 1.7714
+  },
+  "conclusions": [
+    "SHA-256: CRACKED in 0.0001s - 792,739 attempts/sec",
+    "bcrypt:  CRACKED in 10.52s - 4.85 attempts/sec",
+    "Argon2:  CRACKED in 1.77s - 28.79 attempts/sec",
+    "",
+    "\u26a0\ufe0f  SHA-256 is 163,451x faster to crack than bcrypt",
+    "\u26a0\ufe0f  SHA-256 is 27,535x faster to crack than Argon2id",
+    "",
+    "\u2705 bcrypt provides excellent protection with ~200ms per attempt",
+    "\u2705 Argon2id provides strong protection with 64MB memory requirement",
+    "\u274c SHA-256 provides NO protection - attackers can try millions/sec"
+  ]
+}
